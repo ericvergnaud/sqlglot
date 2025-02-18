@@ -103,15 +103,21 @@ def _ts_or_ds_diff_sql(self: Presto.Generator, expression: exp.TsOrDsDiff) -> st
 
 def _build_approx_percentile(args: t.List) -> exp.Expression:
     if len(args) == 4:
+        arg3 = seq_get(args, 3)
+        number = float(arg3.this) if arg3 is not None else 0
         return exp.ApproxQuantile(
             this=seq_get(args, 0),
             weight=seq_get(args, 1),
             quantile=seq_get(args, 2),
-            accuracy=seq_get(args, 3),
+            accuracy=exp.Literal(this=f'{int((1 / number) * 100)} ', is_string=False),
         )
     if len(args) == 3:
+        arg2 = seq_get(args, 2)
+        number = float(arg2.this) if arg2 is not None else 0
         return exp.ApproxQuantile(
-            this=seq_get(args, 0), quantile=seq_get(args, 1), accuracy=seq_get(args, 2)
+            this=seq_get(args, 0),
+            quantile=seq_get(args, 1),
+            accuracy=exp.Literal(this=f'{int((1 / number) * 100)} ', is_string=False),
         )
     return exp.ApproxQuantile.from_arg_list(args)
 
